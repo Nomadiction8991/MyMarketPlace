@@ -1,0 +1,15 @@
+{
+  "name": "my-marketplace",
+  "description": "Marketplace pessoal de workflow para opencode e Claude Code: skills, hooks e rotina de code-review em um único plugin (fluxo-trabalho).",
+  "owner": {
+    "name": "Weverton"
+  },
+  "plugins": [
+    {
+      "name": "fluxo-trabalho",
+      "source": "./plugins/fluxo-trabalho",
+      "version": "0.2.6",
+      "description": "Fluxo único de trabalho para opencode e Claude Code: lembrete entreviste-me no início do prompt (UserPromptSubmit / chat.message) + rotina com code-review ao final de cada resposta (Stop / session.idle). Embutidas: 7 skills vendidas de ../Skills (entreviste-me, code-review, commit, chamado-tomticket, frontend-design, linguagem, mr-gitlab)."
+    }
+  ]
+}

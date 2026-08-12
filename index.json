@@ -1,0 +1,17 @@
+{
+  "name": "local-opencode-marketplace",
+  "version": "0.2.6",
+  "description": "Marketplace de plugins para OpenCode e Claude Code (formato nativo de marketplace do Claude Code: .claude-plugin/marketplace.json).",
+  "packages": [
+    {
+      "id": "fluxo-trabalho",
+      "type": "plugin",
+      "name": "fluxo-trabalho",
+      "version": "0.2.6",
+      "description": "Fluxo de trabalho único para OpenCode e Claude Code: lembrete entreviste-me no início (UserPromptSubmit / chat.message) + rotina com code-review ao final de cada resposta (Stop / session.idle). Embutidas: 7 skills (entreviste-me, code-review, commit, chamado-tomticket, frontend-design, linguagem, mr-gitlab).",
+      "path": "plugins/fluxo-trabalho",
+      "entry": "index.ts",
+      "tags": ["plugin", "hook", "workflow", "rotina", "code-review", "skills"]
+    }
+  ]
+}
