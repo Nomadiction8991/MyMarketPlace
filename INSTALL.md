@@ -14,11 +14,13 @@ e no **OpenCode**. O plugin traz o fluxo completo: lembrete da skill
 Dentro do Claude Code, no diretório do projeto onde você quer usar o fluxo:
 
 ```
-/plugin marketplace add <git-url-do-repo>
+/plugin marketplace add Nomadiction8991/MyMarketPlace
 ```
 
-- URL de Git remoto (recomendado — recebe atualizações):
-  `/plugin marketplace add https://gitlab.com/SEU_USUARIO/MyMarketPlace.git`
+- Shorthand GitHub (recomendado — recebe atualizações):
+  `/plugin marketplace add Nomadiction8991/MyMarketPlace`
+- URL completa, se preferir:
+  `/plugin marketplace add https://github.com/Nomadiction8991/MyMarketPlace.git`
 - Local (para testar antes de subir):
   `/plugin marketplace add /caminho/para/MyMarketPlace`
 
@@ -78,7 +80,7 @@ O OpenCode não tem "marketplace": ele carrega o plugin e as skills por
 **caminho no disco**. Então clone o repo uma vez na sua máquina:
 
 ```bash
-git clone <git-url-do-repo> ~/marketplaces/MyMarketPlace
+git clone https://github.com/Nomadiction8991/MyMarketPlace.git ~/marketplaces/MyMarketPlace
 ```
 
 ### 2. Apontar no `opencode.json` do projeto
