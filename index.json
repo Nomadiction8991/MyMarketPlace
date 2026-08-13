@@ -17,11 +17,11 @@
       "id": "ai-memory",
       "type": "plugin",
       "name": "ai-memory",
-      "version": "0.1.0",
-      "description": "Cliente do servidor ai-memory: MCP remoto + hooks de ciclo de vida (SessionStart, UserPromptSubmit, Pre/PostToolUse, Stop, SessionEnd) para Claude Code e OpenCode. Credencial lida de arquivo de secrets — só baixar, colocar o token e funciona.",
+      "version": "0.2.0",
+      "description": "Cliente do servidor ai-memory: MCP remoto + hooks de ciclo de vida (SessionStart, UserPromptSubmit, Pre/PostToolUse, Stop, SessionEnd) + 5 skills embutidas (retrieval, handoff, durable-pages, learning-maintenance, routing-install). Credencial lida de arquivo de secrets — só baixar, colocar o token e funciona.",
       "path": "plugins/ai-memory",
       "entry": "index.ts",
-      "tags": ["plugin", "mcp", "memoria", "hooks", "ai-memory"]
+      "tags": ["plugin", "mcp", "memoria", "hooks", "skills", "ai-memory"]
     }
   ]
 }

@@ -1,27 +1,43 @@
 #!/usr/bin/env bash
 # Instala o cliente ai-memory no escopo do USUÁRIO (global):
-#   1. Baixa o binário `ai-memory` do release oficial (com verificação sha256)
-#   2. Garante a credencial (Bearer token) em um arquivo de secrets
-#   3. Registra o MCP remoto no Claude Code (`claude mcp add --scope user`)
-#   4. Mescla o MCP remoto no config global do OpenCode
-#   5. Instala as skills do ai-memory (global, Claude Code + .agents)
+#   1. Garante o clone do marketplace (plugin + skills + hooks)
+#   2. Baixa o binário `ai-memory` do release oficial (com verificação sha256)
+#   3. Garante a credencial (Bearer token) em um arquivo de secrets
+#   4. Registra o MCP remoto no Claude Code (`claude mcp add --scope user`)
+#   5. Mescla plugin + skills.paths + MCP remoto no config global do OpenCode
 #
-# Tudo em um comando: binário + credencial + MCP + hooks + skills.
+# Tudo em um comando: plugin + binário + credencial + MCP + hooks + skills.
 #
 # Uso:
-#   bash plugins/ai-memory/scripts/install.sh
+#   bash <(curl -fsSL https://raw.githubusercontent.com/Nomadiction8991/MyMarketPlace/main/plugins/ai-memory/scripts/install.sh)
 #   AI_MEMORY_TOKEN=xxx bash plugins/ai-memory/scripts/install.sh   # sem prompt
 set -euo pipefail
 
+MARKETPLACE_URL="https://github.com/Nomadiction8991/MyMarketPlace.git"
+MARKETPLACE_DIR="${MARKETPLACE_DIR:-${HOME}/marketplaces/MyMarketPlace}"
+PLUGIN_DIR="${MARKETPLACE_DIR}/plugins/ai-memory"
+
 VERSION="1.26.0"
-REPO="akitaonrails/ai-memory"
+BIN_REPO="akitaonrails/ai-memory"
 SERVER_URL="${AI_MEMORY_SERVER_URL:-https://aimemory.anvy.com.br}"
 BIN_DIR="${HOME}/.local/bin"
 SECRETS_DIR="${HOME}/.local/share/opencode/secrets"
 TOKEN_FILE="${AI_MEMORY_TOKEN_FILE:-${SECRETS_DIR}/aimemory-token}"
 OPENCODE_CONFIG="${HOME}/.config/opencode/opencode.json"
 
-# ---------- 1. Binário ----------
+# ---------- 1. Marketplace (plugin + skills + hooks) ----------
+if [ -d "${MARKETPLACE_DIR}/.git" ]; then
+  echo "Marketplace já existe em ${MARKETPLACE_DIR}"
+  echo "Dica: rode 'git -C ${MARKETPLACE_DIR} pull' para atualizar."
+else
+  echo "Clonando marketplace em ${MARKETPLACE_DIR}..."
+  mkdir -p "$(dirname "${MARKETPLACE_DIR}")"
+  git clone "${MARKETPLACE_URL}" "${MARKETPLACE_DIR}"
+fi
+PLUGIN_PATH="${PLUGIN_DIR}/index.ts"
+SKILLS_PATH="${PLUGIN_DIR}/skills"
+
+# ---------- 2. Binário ----------
 os="$(uname -s)"
 arch="$(uname -m)"
 case "${os}" in
@@ -36,7 +52,7 @@ case "${arch}" in
 esac
 
 ASSET="ai-memory-${os_asset}-${arch_asset}.tar.gz"
-URL="https://github.com/${REPO}/releases/download/v${VERSION}/${ASSET}"
+URL="https://github.com/${BIN_REPO}/releases/download/v${VERSION}/${ASSET}"
 
 if command -v ai-memory >/dev/null 2>&1; then
   echo "Usando ai-memory já instalado: $(command -v ai-memory)"
@@ -57,10 +73,10 @@ else
     exit 1
   fi
   install -m 0755 "${BIN_SRC}" "${BIN_DIR}/ai-memory"
-  echo "Binário instalado em ${BIN_DIR}/ai-memory ($(ai-memory --version 2>/dev/null || echo ok))"
+  echo "Binário instalado em ${BIN_DIR}/ai-memory ($("${BIN_DIR}/ai-memory" --version 2>/dev/null || echo ok))"
 fi
 
-# ---------- 2. Credencial ----------
+# ---------- 3. Credencial ----------
 TOKEN="${AI_MEMORY_TOKEN:-}"
 if [ -z "${TOKEN}" ] && [ -f "${TOKEN_FILE}" ]; then
   TOKEN="$(tr -d '[:space:]' < "${TOKEN_FILE}")"
@@ -77,7 +93,7 @@ if [ -n "${TOKEN}" ]; then
   echo "Credencial salva em ${TOKEN_FILE}"
 fi
 
-# ---------- 3. Claude Code ----------
+# ---------- 4. Claude Code (MCP + plugin) ----------
 if command -v claude >/dev/null 2>&1; then
   if [ -n "${TOKEN}" ]; then
     if claude mcp get ai-memory >/dev/null 2>&1; then
@@ -89,48 +105,57 @@ if command -v claude >/dev/null 2>&1; then
   else
     echo "Aviso: sem token, MCP do Claude Code não registrado."
   fi
+  if claude plugin list 2>/dev/null | grep -q "ai-memory@my-marketplace"; then
+    echo "Plugin ai-memory já instalado no Claude Code (skills embutidas)."
+  else
+    claude plugin marketplace update my-marketplace >/dev/null 2>&1 || true
+    claude plugin install ai-memory@my-marketplace --scope user || \
+      echo "Aviso: instale manualmente com /plugin install ai-memory@my-marketplace"
+    echo "Plugin ai-memory instalado no Claude Code (skills embutidas)."
+  fi
 else
   echo "Aviso: claude não encontrado no PATH; pulei o registro no Claude Code."
 fi
 
-# ---------- 4. OpenCode ----------
-if command -v opencode >/dev/null 2>&1 || [ -f "${OPENCODE_CONFIG}" ]; then
-  mkdir -p "$(dirname "${OPENCODE_CONFIG}")"
-  if [ ! -f "${OPENCODE_CONFIG}" ]; then
-    echo '{ "$schema": "https://opencode.ai/config.json", "mcp": {} }' > "${OPENCODE_CONFIG}"
-  fi
+# ---------- 5. OpenCode (plugin + skills.paths + MCP) ----------
+mkdir -p "$(dirname "${OPENCODE_CONFIG}")"
+if [ ! -f "${OPENCODE_CONFIG}" ]; then
+  cat > "${OPENCODE_CONFIG}" <<EOF
+{
+  "\$schema": "https://opencode.ai/config.json",
+  "plugin": ["${PLUGIN_PATH}"],
+  "skills": {
+    "paths": ["${SKILLS_PATH}"]
+  },
+  "mcp": {}
+}
+EOF
+  echo "Config OpenCode criado: ${OPENCODE_CONFIG}"
+else
   TMP_FILE="$(mktemp)"
-  if ! jq --arg url "${SERVER_URL}/mcp" --arg file "${TOKEN_FILE}" '
-      .mcp["ai-memory"] = {
-        "type": "remote",
-        "url": $url,
-        "enabled": true,
-        "headers": { "Authorization": "Bearer {file:\($file)}" }
-      }
+  if ! jq --arg plugin "${PLUGIN_PATH}" --arg skills "${SKILLS_PATH}" --arg url "${SERVER_URL}/mcp" --arg file "${TOKEN_FILE}" '
+      .plugin = ((.plugin // []) | if index($plugin) then . else . + [$plugin] end)
+      | .skills.paths = ((.skills.paths // []) | if index($skills) then . else . + [$skills] end)
+      | .mcp["ai-memory"] = {
+          "type": "remote",
+          "url": $url,
+          "enabled": true,
+          "headers": { "Authorization": "Bearer {file:\($file)}" }
+        }
     ' "${OPENCODE_CONFIG}" > "${TMP_FILE}"; then
     echo "ERRO: falha ao mesclar ${OPENCODE_CONFIG} (jq). Config não alterado." >&2
     rm -f "${TMP_FILE}"
     exit 1
   fi
   mv "${TMP_FILE}" "${OPENCODE_CONFIG}"
-  echo "MCP ai-memory registrado no OpenCode global (${OPENCODE_CONFIG})"
-else
-  echo "Aviso: opencode não encontrado; pulei o registro no OpenCode."
-fi
-
-# ---------- 5. Skills (globais, ambos runtimes) ----------
-if command -v ai-memory >/dev/null 2>&1 || [ -x "${BIN_DIR}/ai-memory" ]; then
-  echo "Instalando skills do ai-memory (global, Claude Code + .agents)..."
-  ai-memory install-skills --scope global --agent both 2>&1 | grep -v "^\[" | tail -12
-  echo "Skills instaladas: ~/.claude/skills e ~/.agents/skills (ai-memory-*)"
-else
-  echo "Aviso: binário ai-memory não disponível; skills não instaladas."
+  echo "Config OpenCode atualizado: ${OPENCODE_CONFIG}"
 fi
 
 echo
-echo "Pronto! Cliente ai-memory configurado no escopo do USUÁRIO:"
-echo "- Servidor: ${SERVER_URL}"
-echo "- Binário:  ${BIN_DIR}/ai-memory"
-echo "- Credencial: ${TOKEN_FILE}"
+echo "Pronto! ai-memory configurado no escopo do USUÁRIO:"
+echo "- Servidor:    ${SERVER_URL}"
+echo "- Plugin+skills: ${PLUGIN_DIR} (OpenCode) / ai-memory@my-marketplace (Claude)"
+echo "- Binário:     ${BIN_DIR}/ai-memory"
+echo "- Credencial:  ${TOKEN_FILE}"
 echo
 echo "MCP, hooks e skills configurados. Reinicie Claude Code / OpenCode para carregar."

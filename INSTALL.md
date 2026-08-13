@@ -214,15 +214,16 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Nomadiction8991/MyMarketPlac
 
 O script (idempotente, escopo usuário):
 
-1. baixa o binário `ai-memory` do release oficial (sha256 conferido);
-2. pergunta o **Bearer token** e salva em
+1. garante o clone do marketplace em `~/marketplaces/MyMarketPlace`
+   (plugin + skills + hooks);
+2. baixa o binário `ai-memory` do release oficial (sha256 conferido);
+3. pergunta o **Bearer token** e salva em
    `~/.local/share/opencode/secrets/aimemory-token` (chmod 600) — ou use
    `AI_MEMORY_TOKEN=...` para não perguntar;
-3. registra o MCP remoto no **Claude Code** (`claude mcp add --scope user`);
-4. mescla o MCP remoto no config global do **OpenCode**
-   (`"Authorization": "Bearer {file:...}"`);
-5. instala as **skills** do ai-memory (5 skills, globais: Claude Code +
-   `.agents`).
+4. registra o MCP remoto no **Claude Code** (`claude mcp add --scope user`)
+   e instala o plugin `ai-memory@my-marketplace` (skills embutidas);
+5. mescla plugin + `skills.paths` + MCP remoto no config global do
+   **OpenCode** (`"Authorization": "Bearer {file:...}"`).
 
 Depois reinicie Claude Code / OpenCode.
 
@@ -235,12 +236,18 @@ Depois reinicie Claude Code / OpenCode.
 > Para apontar para outro servidor, exporte `AI_MEMORY_SERVER_URL` (hooks)
 > ou defina no config do OpenCode.
 
-### Skills (instaladas pelo install.sh)
+### Skills (embutidas no plugin)
 
 As 5 skills gerenciadas (`ai-memory-retrieval`, `ai-memory-handoff`,
 `ai-memory-durable-pages`, `ai-memory-learning-maintenance`,
-`ai-memory-routing-install`) são instaladas globalmente — em
-`~/.claude/skills` (Claude Code) e `~/.agents/skills` (demais agentes).
+`ai-memory-routing-install`) são **vendidas dentro do plugin**, em
+`plugins/ai-memory/skills/`:
+
+- **Claude Code**: vêm junto com o plugin (auto-discovery, namespace
+  `ai-memory:`) — instalar o plugin já traz as skills.
+- **OpenCode**: o `skills.paths` do install.sh aponta para a pasta vendida.
+
+Não é preciso rodar `install-skills` — tudo vem no pacote.
 
 ### Hooks do Claude Code
 
