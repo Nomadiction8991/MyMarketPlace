@@ -10,6 +10,12 @@
       "source": "./plugins/fluxo-trabalho",
       "version": "0.3.0",
       "description": "Fluxo único de trabalho para opencode e Claude Code: lembrete entreviste-me no início do prompt (UserPromptSubmit / chat.message) + rotina com code-review ao final de cada resposta (Stop / session.idle). Embutidas: 7 skills (entreviste-me, code-review, commit, chamado-tomticket, frontend-design, linguagem, mr-gitlab)."
+    },
+    {
+      "name": "ai-memory",
+      "source": "./plugins/ai-memory",
+      "version": "0.1.0",
+      "description": "Cliente do servidor ai-memory: MCP remoto + hooks de ciclo de vida (SessionStart, UserPromptSubmit, Pre/PostToolUse, Stop, SessionEnd) para Claude Code e OpenCode. Credencial lida de arquivo de secrets — só baixar, colocar o token e funciona."
     }
   ]
 }

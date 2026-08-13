@@ -1,6 +1,6 @@
 {
   "name": "local-opencode-marketplace",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Marketplace de plugins para OpenCode e Claude Code (formato nativo de marketplace do Claude Code: .claude-plugin/marketplace.json).",
   "packages": [
     {
@@ -12,6 +12,16 @@
       "path": "plugins/fluxo-trabalho",
       "entry": "index.ts",
       "tags": ["plugin", "hook", "workflow", "rotina", "code-review", "skills"]
+    },
+    {
+      "id": "ai-memory",
+      "type": "plugin",
+      "name": "ai-memory",
+      "version": "0.1.0",
+      "description": "Cliente do servidor ai-memory: MCP remoto + hooks de ciclo de vida (SessionStart, UserPromptSubmit, Pre/PostToolUse, Stop, SessionEnd) para Claude Code e OpenCode. Credencial lida de arquivo de secrets — só baixar, colocar o token e funciona.",
+      "path": "plugins/ai-memory",
+      "entry": "index.ts",
+      "tags": ["plugin", "mcp", "memoria", "hooks", "ai-memory"]
     }
   ]
 }

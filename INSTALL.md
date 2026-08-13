@@ -183,6 +183,65 @@ A skill `code-review` consulta documentação atualizada com o MCP
 
 ---
 
+## Plugin ai-memory (memória de longo prazo)
+
+Plugin **cliente** do servidor ai-memory: registra o MCP remoto e emite
+hooks de ciclo de vida (início/fim de sessão, prompts, ferramentas) para o
+servidor em `https://aimemory.anvy.com.br`. A **credencial nunca fica no
+plugin**: é lida em runtime de um arquivo de secrets.
+
+### 1. Instalar o plugin
+
+**Claude Code** (escopo usuário):
+
+```
+/plugin install ai-memory@my-marketplace
+```
+
+**OpenCode**: adicione ao config global (`~/.config/opencode/opencode.json`):
+
+```json
+"plugin": [
+  "/home/SEU_USUARIO/marketplaces/MyMarketPlace/plugins/ai-memory/index.ts"
+]
+```
+
+### 2. Instalar binário + credencial (uma vez por máquina)
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Nomadiction8991/MyMarketPlace/main/plugins/ai-memory/scripts/install.sh)
+```
+
+O script (idempotente, escopo usuário):
+
+1. baixa o binário `ai-memory` do release oficial (sha256 conferido);
+2. pergunta o **Bearer token** e salva em
+   `~/.local/share/opencode/secrets/aimemory-token` (chmod 600) — ou use
+   `AI_MEMORY_TOKEN=...` para não perguntar;
+3. registra o MCP remoto no **Claude Code** (`claude mcp add --scope user`);
+4. mescla o MCP remoto no config global do **OpenCode**
+   (`"Authorization": "Bearer {file:...}"`).
+
+Depois reinicie Claude Code / OpenCode.
+
+> **Só baixar e colocar a credencial**: o plugin já sabe onde buscar o
+> binário e o token em runtime. Se preferir, basta criar o arquivo
+> `~/.local/share/opencode/secrets/aimemory-token` com o token (sem quebra
+> de linha) — sem rodar o script — desde que o binário `ai-memory` já
+> exista no `PATH` ou em `~/.local/bin`.
+>
+> Para apontar para outro servidor, exporte `AI_MEMORY_SERVER_URL` (hooks)
+> ou defina no config do OpenCode.
+
+### Hooks do Claude Code
+
+O plugin traz `hooks/hooks.json` (SessionStart, UserPromptSubmit,
+PreToolUse, PostToolUse, PreCompact, Stop, SessionEnd), todos apontando
+para `hooks/emit.sh` — o mesmo runtime de resolução do `index.ts` do
+OpenCode (env `AI_MEMORY_TOKEN` > arquivo de secrets).
+
+---
+
 ## Requisitos
 
 - **Claude Code**: instalação padrão; suporte a `/plugin` (versão atual).
