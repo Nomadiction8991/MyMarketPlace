@@ -37,6 +37,8 @@ O ` *` no final do subject **exclui o commit do changelog de deploy**. Lógica:
 
 Identificação do ticket: procurar padrões `tt-XXXX` / `TT-XXXX` na mensagem do usuário, no diff (comentários, strings de erro) ou no nome da branch.
 
+**Sempre pergunte ao usuário** se o commit sai ou não no changelog de deploy (passo 3.5 do `fluxo.md`) — não assuma pela presença do ticket. A pergunta vale inclusive com ticket (o `(tt-XXXX)` normalmente implica "sai no changelog"; confirme, e se o usuário disser que não deve sair, aplique a exceção conforme a tabela acima).
+
 ---
 
 ## 3. Corpo — opcional, linguagem simples (substitui a regra #1 da skill)

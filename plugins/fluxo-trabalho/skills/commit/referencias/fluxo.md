@@ -56,6 +56,29 @@ Aplicar `regras-gerais.md` (regra #5): **somente** em projeto Ello (Passo 0) —
 
 ---
 
+## Passo 3.5 — Changelog no deploy (só em projeto Ello)
+
+Em projeto Ello (Passo 0), **pergunte ao usuário** se o commit deve ou não
+aparecer no changelog de deploy — nunca assuma. Aplicar a regra do ` *` da
+seção 2 de `ello.md`:
+
+- **Há ticket** (`tt-XXXX` detectado) → subject termina com `(tt-XXXX)`,
+  **sem** ` *` no final.
+- **Sem ticket e deve sair no changelog** → subject **sem** ` *`.
+- **Sem ticket e NÃO deve sair no changelog** → subject termina com ` *`.
+
+Regras da pergunta:
+
+- Pergunte o changelog **sempre**, mesmo com ticket — confirme com o
+  usuário que a decisão está correta (o `(tt-XXXX)` já implica "sai no
+  changelog"; se o usuário disser que não deve sair, só comente a exceção).
+- Formule a pergunta com as opções claras: "sai no changelog" / "não sai
+  no changelog" (e "tem ticket" quando aplicável), com a recomendada.
+- Se não for possível perguntar (ambiente não interativo), assuma "deve
+  sair no changelog" (sem ` *`).
+
+---
+
 ## Passo 4 — Montar a Mensagem
 
 **Se for projeto Ello (Passo 0):** usar `../templates/ello-commit.md` com as regras de `../referencias/ello.md`.
