@@ -1,7 +1,7 @@
 {
   "name": "fluxo-trabalho",
-  "description": "Fluxo único: lembrete entreviste-me no início do prompt + rotina com code-review ao final de cada resposta. Skills embutidas em skills/ (vendidas de ../Skills).",
-  "version": "0.2.6",
+  "description": "Fluxo único: lembrete entreviste-me no início do prompt + rotina com code-review ao final de cada resposta. Skills embutidas em skills/.",
+  "version": "0.3.0",
   "author": {
     "name": "Weverton"
   }

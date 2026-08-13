@@ -8,8 +8,8 @@
     {
       "name": "fluxo-trabalho",
       "source": "./plugins/fluxo-trabalho",
-      "version": "0.2.6",
-      "description": "Fluxo único de trabalho para opencode e Claude Code: lembrete entreviste-me no início do prompt (UserPromptSubmit / chat.message) + rotina com code-review ao final de cada resposta (Stop / session.idle). Embutidas: 7 skills vendidas de ../Skills (entreviste-me, code-review, commit, chamado-tomticket, frontend-design, linguagem, mr-gitlab)."
+      "version": "0.3.0",
+      "description": "Fluxo único de trabalho para opencode e Claude Code: lembrete entreviste-me no início do prompt (UserPromptSubmit / chat.message) + rotina com code-review ao final de cada resposta (Stop / session.idle). Embutidas: 7 skills (entreviste-me, code-review, commit, chamado-tomticket, frontend-design, linguagem, mr-gitlab)."
     }
   ]
 }
