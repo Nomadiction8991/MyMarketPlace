@@ -220,7 +220,9 @@ O script (idempotente, escopo usuário):
    `AI_MEMORY_TOKEN=...` para não perguntar;
 3. registra o MCP remoto no **Claude Code** (`claude mcp add --scope user`);
 4. mescla o MCP remoto no config global do **OpenCode**
-   (`"Authorization": "Bearer {file:...}"`).
+   (`"Authorization": "Bearer {file:...}"`);
+5. instala as **skills** do ai-memory (5 skills, globais: Claude Code +
+   `.agents`).
 
 Depois reinicie Claude Code / OpenCode.
 
@@ -232,6 +234,13 @@ Depois reinicie Claude Code / OpenCode.
 >
 > Para apontar para outro servidor, exporte `AI_MEMORY_SERVER_URL` (hooks)
 > ou defina no config do OpenCode.
+
+### Skills (instaladas pelo install.sh)
+
+As 5 skills gerenciadas (`ai-memory-retrieval`, `ai-memory-handoff`,
+`ai-memory-durable-pages`, `ai-memory-learning-maintenance`,
+`ai-memory-routing-install`) são instaladas globalmente — em
+`~/.claude/skills` (Claude Code) e `~/.agents/skills` (demais agentes).
 
 ### Hooks do Claude Code
 

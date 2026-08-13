@@ -4,6 +4,9 @@
 #   2. Garante a credencial (Bearer token) em um arquivo de secrets
 #   3. Registra o MCP remoto no Claude Code (`claude mcp add --scope user`)
 #   4. Mescla o MCP remoto no config global do OpenCode
+#   5. Instala as skills do ai-memory (global, Claude Code + .agents)
+#
+# Tudo em um comando: binário + credencial + MCP + hooks + skills.
 #
 # Uso:
 #   bash plugins/ai-memory/scripts/install.sh
@@ -115,11 +118,19 @@ else
   echo "Aviso: opencode não encontrado; pulei o registro no OpenCode."
 fi
 
+# ---------- 5. Skills (globais, ambos runtimes) ----------
+if command -v ai-memory >/dev/null 2>&1 || [ -x "${BIN_DIR}/ai-memory" ]; then
+  echo "Instalando skills do ai-memory (global, Claude Code + .agents)..."
+  ai-memory install-skills --scope global --agent both 2>&1 | grep -v "^\[" | tail -12
+  echo "Skills instaladas: ~/.claude/skills e ~/.agents/skills (ai-memory-*)"
+else
+  echo "Aviso: binário ai-memory não disponível; skills não instaladas."
+fi
+
 echo
 echo "Pronto! Cliente ai-memory configurado no escopo do USUÁRIO:"
 echo "- Servidor: ${SERVER_URL}"
 echo "- Binário:  ${BIN_DIR}/ai-memory"
 echo "- Credencial: ${TOKEN_FILE}"
 echo
-echo "Hooks do Claude Code e plugin do OpenCode já usam essa configuração."
-echo "Reinicie Claude Code / OpenCode para carregar."
+echo "MCP, hooks e skills configurados. Reinicie Claude Code / OpenCode para carregar."
