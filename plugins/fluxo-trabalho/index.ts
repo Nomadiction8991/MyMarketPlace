@@ -1,10 +1,12 @@
 import type { Plugin } from "@opencode-ai/plugin"
 import type { Part } from "@opencode-ai/sdk"
 import { createHash } from "node:crypto"
-import { join } from "node:path"
+import { dirname, join } from "node:path"
+import { fileURLToPath } from "node:url"
 import { writeFile } from "node:fs/promises"
 
-const RUN_SCRIPT = "plugins/fluxo-trabalho/hooks/run.sh"
+const PLUGIN_ROOT = dirname(fileURLToPath(import.meta.url))
+const RUN_SCRIPT = join(PLUGIN_ROOT, "hooks", "run.sh")
 const INTERVIEW_REMINDER =
   "Antes de iniciar qualquer ação (pesquisa, edição ou implementação), execute a skill entreviste-me para validar o entendimento do pedido."
 
@@ -41,7 +43,7 @@ export const WorkflowHook: Plugin = async ({ $, worktree }) => {
       if (process.env.OPENCODE_SKIP_WORKFLOW === "1") return
 
       $.cwd(worktree)
-      const run = $`bash ${join(worktree, RUN_SCRIPT)}`.quiet()
+      const run = $`bash ${RUN_SCRIPT}`.quiet()
       run.catch(() => {})
     },
   }
