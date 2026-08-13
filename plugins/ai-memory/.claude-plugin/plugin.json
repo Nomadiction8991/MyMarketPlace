@@ -1,0 +1,8 @@
+{
+  "name": "ai-memory",
+  "description": "Cliente do servidor ai-memory: MCP remoto + hooks de ciclo de vida (SessionStart, UserPromptSubmit, Pre/PostToolUse, Stop, SessionEnd) para Claude Code e OpenCode. A credencial é lida de um arquivo de secrets (nunca embutida no plugin).",
+  "version": "0.1.0",
+  "author": {
+    "name": "Weverton"
+  }
+}
