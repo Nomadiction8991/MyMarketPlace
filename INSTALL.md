@@ -5,13 +5,19 @@ e no **OpenCode**. O plugin traz o fluxo completo: lembrete da skill
 `entreviste-me` no início, detecção de edição de arquivos e rotina com
 `code-review` ao final de cada resposta, além de 7 skills embutidas.
 
+> **Política de escopo: sempre usuário.** O plugin, as skills e os MCPs
+> (context7) são instalados **no escopo do usuário (global)** — valem para
+> todos os seus projetos, em qualquer máquina sua. Nada é configurado por
+> projeto. Escopo por projeto só deve ser usado quando você quiser
+> deliberadamente algo diferente do padrão.
+
 ---
 
 ## Claude Code
 
 ### 1. Adicionar o marketplace
 
-Dentro do Claude Code, no diretório do projeto onde você quer usar o fluxo:
+Dentro do Claude Code:
 
 ```
 /plugin marketplace add Nomadiction8991/MyMarketPlace
@@ -24,19 +30,26 @@ Dentro do Claude Code, no diretório do projeto onde você quer usar o fluxo:
 - Local (para testar antes de subir):
   `/plugin marketplace add /caminho/para/MyMarketPlace`
 
-### 2. Instalar o plugin
+### 2. Instalar o plugin (escopo usuário)
 
 ```
 /plugin install fluxo-trabalho@my-marketplace
 ```
 
-O Claude pergunta o **escopo**:
+Escolha o escopo **`user`** (ou use o CLI sem interação):
+
+```bash
+claude plugin install fluxo-trabalho@my-marketplace --scope user
+```
 
 | Escopo | Onde fica | Uso |
 |---|---|---|
-| `user` | seu usuário, todos os projetos | seu fluxo pessoal |
-| `project` | `.claude/settings.json` do repo | time/collabs no mesmo repo |
+| `user` ✅ (padrão) | seu usuário, todos os projetos | seu fluxo pessoal |
+| `project` | `.claude/settings.json` do repo | só quando quiser por repo |
 | `local` | só neste repo (gitignored) | teste pontual |
+
+Com escopo `user`, o MCP `context7` do plugin (`.mcp.json`) também fica
+global — vale em todos os projetos, sem repetir instalação.
 
 ### 3. Ativar
 
@@ -74,6 +87,26 @@ Versão nova é sinalizada pelo `version` no `plugin.json` do pacote.
 
 ## OpenCode
 
+### Método automático (recomendado)
+
+Com o repo já clonado (ou baixe direto), rode o instalador:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/Nomadiction8991/MyMarketPlace/main/scripts/install-opencode.sh)
+```
+
+O script:
+1. clona o marketplace em `~/marketplaces/MyMarketPlace` (se não existir);
+2. mescla **no config global** (`~/.config/opencode/opencode.json`) —
+   escopo de usuário, vale em todos os projetos;
+3. garante `plugin` + `skills.paths` + **MCP context7**, **preservando**
+   MCPs e outras configs existentes;
+4. é idempotente — rodar de novo não duplica nada.
+
+Depois reinicie o OpenCode.
+
+### Método manual
+
 ### 1. Clonar o marketplace
 
 O OpenCode não tem "marketplace": ele carrega o plugin e as skills por
@@ -83,21 +116,21 @@ O OpenCode não tem "marketplace": ele carrega o plugin e as skills por
 git clone https://github.com/Nomadiction8991/MyMarketPlace.git ~/marketplaces/MyMarketPlace
 ```
 
-### 2. Apontar no `opencode.json` do projeto
+### 2. Apontar no `opencode.json` (global)
 
-No projeto de destino, edite o `opencode.json`:
+No config global `~/.config/opencode/opencode.json` (escopo de usuário):
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["~/marketplaces/MyMarketPlace/plugins/fluxo-trabalho/index.ts"],
+  "plugin": ["/home/SEU_USUARIO/marketplaces/MyMarketPlace/plugins/fluxo-trabalho/index.ts"],
   "skills": {
-    "paths": ["~/marketplaces/MyMarketPlace/plugins/fluxo-trabalho/skills"]
+    "paths": ["/home/SEU_USUARIO/marketplaces/MyMarketPlace/plugins/fluxo-trabalho/skills"]
   }
 }
 ```
 
-Use o caminho absoluto (ou `~`) do clone.
+Use o caminho absoluto do clone.
 
 ### 3. Reiniciar o OpenCode
 
@@ -122,6 +155,31 @@ cd ~/marketplaces/MyMarketPlace && git pull
 ```
 
 Skills e plugin atualizam juntos — basta reiniciar o OpenCode.
+
+---
+
+## MCP context7 (dependência do code-review)
+
+A skill `code-review` consulta documentação atualizada com o MCP
+**context7**. Ele vem assim:
+
+- **Claude Code**: automático — o plugin traz um `.mcp.json` com o
+  servidor `context7` (`npx -y @upstash/context7-mcp`). Ao instalar o
+  plugin, o MCP já conecta; confirme com `/mcp`.
+- **OpenCode**: adicione manualmente uma vez no `mcp` do config global
+  (`~/.config/opencode/opencode.json`):
+
+  ```json
+  "context7": {
+    "type": "remote",
+    "url": "https://mcp.context7.com/mcp",
+    "headers": { "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}" },
+    "enabled": true
+  }
+  ```
+
+  (Sem `CONTEXT7_API_KEY` no ambiente, o context7 funciona com limite
+  gratuito.) Depois reinicie o OpenCode.
 
 ---
 
