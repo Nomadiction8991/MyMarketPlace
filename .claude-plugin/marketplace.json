@@ -14,8 +14,8 @@
     {
       "name": "ai-memory",
       "source": "./plugins/ai-memory",
-      "version": "0.2.0",
-      "description": "Cliente do servidor ai-memory: MCP remoto + hooks de ciclo de vida (SessionStart, UserPromptSubmit, Pre/PostToolUse, Stop, SessionEnd) + 5 skills embutidas (retrieval, handoff, durable-pages, learning-maintenance, routing-install). Credencial lida de arquivo de secrets — só baixar, colocar o token e funciona."
+      "version": "0.3.0",
+      "description": "Cliente do servidor ai-memory: MCP remoto (via .mcp.json) + hooks de ciclo de vida (SessionStart, UserPromptSubmit, Pre/PostToolUse, Stop, SessionEnd) + 6 skills embutidas (retrieval, handoff, durable-pages, learning-maintenance, routing-install, login). Credencial lida de arquivo de secrets e solicitada em runtime quando ausente — só baixar, colocar o token e funciona."
     }
   ]
 }

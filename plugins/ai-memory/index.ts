@@ -133,6 +133,36 @@ const sessionCwds = new Map<string, string>();
 const startedSessions = new Set<string>();
 const handoffChecked = new Set<string>();
 const preCompactLast = new Map<string, number>();
+const missingCredentialWarned = new Set<string>();
+let opencodeClient: { tui?: { showToast?: (opts: unknown) => Promise<unknown> } } | undefined;
+const CREDENTIAL_HINT =
+  "⚠ ai-memory: credencial ausente (token não encontrado em AI_MEMORY_TOKEN nem em ~/.local/share/opencode/secrets/aimemory-token). " +
+  "Solicite o token ao usuário e, com a permissão dele, salve-o (sem quebra de linha, chmod 600) no arquivo " +
+  "~/.local/share/opencode/secrets/aimemory-token — ou rode o instalador: " +
+  "bash <(curl -fsSL https://raw.githubusercontent.com/Nomadiction8991/MyMarketPlace/main/plugins/ai-memory/scripts/install.sh).";
+
+function warnMissingCredential(input: unknown): void {
+  const id = sessionID(input) ?? "unknown";
+  if (missingCredentialWarned.has(id)) return;
+  missingCredentialWarned.add(id);
+  if (resolveToken() !== null) return;
+  try {
+    if (opencodeClient?.tui?.showToast) {
+      void opencodeClient.tui
+        .showToast({
+          body: {
+            title: "ai-memory: credencial ausente",
+            message: "Peça o token ao usuário ou rode o instalador (veja logs).",
+            variant: "warning",
+          },
+        })
+        .catch(() => undefined);
+    }
+  } catch (_e) {
+    // aviso silencioso
+  }
+  console.error(CREDENTIAL_HINT);
+}
 
 function cwdFor(id: string | undefined, directory: string): string {
   return (id && sessionCwds.get(id)) || directory;
@@ -193,7 +223,8 @@ async function fetchHandoff(cwd: string): Promise<string | undefined> {
   }
 }
 
-export const AiMemoryHooks: Plugin = async ({ directory }) => {
+export const AiMemoryHooks: Plugin = async ({ directory, client }) => {
+  opencodeClient = client as typeof opencodeClient;
   return {
     event: async (input) => {
       const event = (input as any).event;
@@ -202,6 +233,7 @@ export const AiMemoryHooks: Plugin = async ({ directory }) => {
         const info = properties.info ?? {};
         const id = properties.sessionID ?? info.id;
         const cwd = info.directory ?? directory;
+        warnMissingCredential(input);
         startSession(id, cwd, {
           title: info.title,
           projectID: info.projectID,
@@ -220,6 +252,7 @@ export const AiMemoryHooks: Plugin = async ({ directory }) => {
     "chat.message": async (input, output) => {
       const id = sessionID(input);
       const cwd = cwdFor(id, directory);
+      warnMissingCredential(input);
       startSession(id, cwd, { agent: (input as any).agent, model: (input as any).model });
       postHook("user-prompt", {
         sessionID: id,
@@ -263,6 +296,7 @@ export const AiMemoryHooks: Plugin = async ({ directory }) => {
       const id = sessionID(input);
       if (!id || handoffChecked.has(id)) return;
       handoffChecked.add(id);
+      if (resolveToken() === null) (output as any).system.push(CREDENTIAL_HINT);
       startSession(id, cwdFor(id, directory));
       const handoff = await fetchHandoff(cwdFor(id, directory));
       if (handoff) (output as any).system.push(handoff);

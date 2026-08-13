@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "ai-memory": {
+      "type": "http",
+      "url": "https://aimemory.anvy.com.br/mcp",
+      "headersHelper": "T=$(tr -d '[:space:]' < ~/.local/share/opencode/secrets/aimemory-token 2>/dev/null || true); [ -n \"$T\" ] && printf '{\"Authorization\":\"Bearer %s\"}' \"$T\""
+    }
+  }
+}

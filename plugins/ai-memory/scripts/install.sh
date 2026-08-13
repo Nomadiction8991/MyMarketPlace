@@ -4,9 +4,13 @@
 #   2. Baixa o binário `ai-memory` do release oficial (com verificação sha256)
 #   3. Garante a credencial (Bearer token) em um arquivo de secrets
 #   4. Registra o MCP remoto no Claude Code (`claude mcp add --scope user`)
+#      e instala o plugin (skills embutidas; o .mcp.json do plugin usa
+#      headersHelper lendo o mesmo secrets file)
 #   5. Mescla plugin + skills.paths + MCP remoto no config global do OpenCode
 #
 # Tudo em um comando: plugin + binário + credencial + MCP + hooks + skills.
+# Sem credencial, o próprio plugin/hooks/skills avisam e a skill
+# `ai-memory-login` ensina o agente a pedir o token ao usuário.
 #
 # Uso:
 #   bash <(curl -fsSL https://raw.githubusercontent.com/Nomadiction8991/MyMarketPlace/main/plugins/ai-memory/scripts/install.sh)

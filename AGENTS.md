@@ -21,10 +21,11 @@ Este repositório é **somente a criação e estrutura do marketplace** — as I
     skills/                        # 7 skills embutidas no plugin
   plugins/ai-memory/                # plugin cliente do servidor ai-memory
     .claude-plugin/plugin.json     # manifest do plugin
+    .mcp.json                      # servidor MCP remoto (headersHelper lê o secrets file)
     hooks/hooks.json               # gatilhos nativos (SessionStart..SessionEnd)
     hooks/emit.sh                  # emite evento (resolução binário+token em runtime)
     index.ts                       # plugin OpenCode (porta do ai-memory.ts gerado)
-    skills/                        # 5 skills embutidas no plugin (vendidas no pacote)
+    skills/                        # 6 skills embutidas no plugin (vendidas no pacote)
     scripts/install.sh             # clone + binário + credencial + MCP + plugin/skills nos 2 runtimes
 ```
 
@@ -55,5 +56,5 @@ O pacote deste marketplace **deve funcionar para o Claude E para o OpenCode quan
 ## Pacotes ativos (referência)
 
 - `fluxo-trabalho` (`plugins/fluxo-trabalho/`): pacote único instalável em OpenCode E Claude Code. `index.ts` (gatilho OpenCode: `chat.message` injeta lembrete da skill entreviste-me, `tool.execute.after` marca edição e `session.idle` chama `run.sh`), `hooks/` com `entrevista.sh` + `mark-edit.sh` + `run.sh` + `code-review.sh` (rotina universal em bash — passo 1: code-review; roda só se houve edição de arquivo na sessão). No Claude, os gatilhos são nativos: `hooks/hooks.json` (UserPromptSubmit → entrevista.sh, PostToolUse Write|Edit → mark-edit.sh, Stop → run.sh) via `.claude-plugin/plugin.json`. Incremental — novos passos são linhas no `run.sh`.
-- `ai-memory` (`plugins/ai-memory/`): cliente do servidor ai-memory (MCP remoto `https://aimemory.anvy.com.br` + hooks de ciclo de vida). OpenCode: `index.ts` (porta do `ai-memory.ts` gerado por `install-hooks`, lendo servidor/token de env > secrets). Claude: `hooks/hooks.json` (SessionStart, UserPromptSubmit, Pre/PostToolUse, PreCompact, Stop, SessionEnd) → `hooks/emit.sh` — resolução de binário/token em runtime, nada hardcoded. Skills embutidas em `skills/` (5 gerenciadas: retrieval, handoff, durable-pages, learning-maintenance, routing-install) — vendidas no pacote, auto-discovery no Claude, `skills.paths` no OpenCode. `scripts/install.sh` garante o clone do marketplace, baixa o binário do release oficial (sha256), pergunta o token e registra MCP + plugin + skills nos dois runtimes (escopo usuário). Credencial padrão: `~/.local/share/opencode/secrets/aimemory-token`.
+- `ai-memory` (`plugins/ai-memory/`): cliente do servidor ai-memory (MCP remoto `https://aimemory.anvy.com.br` + hooks de ciclo de vida). OpenCode: `index.ts` (porta do `ai-memory.ts` gerado por `install-hooks`, lendo servidor/token de env > secrets; avisa/lembra de pedir a credencial quando ausente). Claude: `.mcp.json` com `headersHelper` lendo o secrets file + `hooks/hooks.json` (SessionStart, UserPromptSubmit, Pre/PostToolUse, PreCompact, Stop, SessionEnd) → `hooks/emit.sh` — resolução de binário/token em runtime, nada hardcoded. Skills embutidas em `skills/` (5 gerenciadas: retrieval, handoff, durable-pages, learning-maintenance, routing-install + 1 própria: login) — vendidas no pacote, auto-discovery no Claude, `skills.paths` no OpenCode. `scripts/install.sh` garante o clone do marketplace, baixa o binário do release oficial (sha256), pergunta o token e registra MCP + plugin + skills nos dois runtimes (escopo usuário). Credencial padrão: `~/.local/share/opencode/secrets/aimemory-token`.
 - Skills embutidas (no fluxo-trabalho): `entreviste-me`, `code-review` (1º passo da rotina; também invocada isolada), `commit`, `chamado-tomticket`, `frontend-design`, `linguagem`, `mr-gitlab`.

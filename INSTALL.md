@@ -198,6 +198,10 @@ plugin**: é lida em runtime de um arquivo de secrets.
 /plugin install ai-memory@my-marketplace
 ```
 
+O plugin traz o `.mcp.json` (servidor MCP remoto com `headersHelper` que
+lê o token do secrets file em runtime) + hooks + 6 skills embutidas. Com
+o token salvo no secrets file, o MCP conecta sozinho.
+
 **OpenCode**: adicione ao config global (`~/.config/opencode/opencode.json`):
 
 ```json
@@ -238,16 +242,29 @@ Depois reinicie Claude Code / OpenCode.
 
 ### Skills (embutidas no plugin)
 
-As 5 skills gerenciadas (`ai-memory-retrieval`, `ai-memory-handoff`,
+As 6 skills (`ai-memory-retrieval`, `ai-memory-handoff`,
 `ai-memory-durable-pages`, `ai-memory-learning-maintenance`,
-`ai-memory-routing-install`) são **vendidas dentro do plugin**, em
-`plugins/ai-memory/skills/`:
+`ai-memory-routing-install` e `ai-memory-login`) são **vendidas dentro do
+plugin**, em `plugins/ai-memory/skills/`:
 
 - **Claude Code**: vêm junto com o plugin (auto-discovery, namespace
   `ai-memory:`) — instalar o plugin já traz as skills.
 - **OpenCode**: o `skills.paths` do install.sh aponta para a pasta vendida.
 
 Não é preciso rodar `install-skills` — tudo vem no pacote.
+
+### Credencial solicitada em runtime
+
+O plugin **nunca leva a chave embutida**. Se o token não existir quando o
+plugin rodar:
+
+- **hooks/`emit.sh`** (Claude): avisa no stderr qual arquivo criar / qual
+  instalador rodar, e sai sem bloquear;
+- **`index.ts`** (OpenCode): mostra toast + injeta lembrete no system
+  prompt para o agente pedir o token ao usuário;
+- **skill `ai-memory-login`**: ensina o agente a pedir o token, salvá-lo
+  em `~/.local/share/opencode/secrets/aimemory-token` (chmod 600) e testar
+  a conexão.
 
 ### Hooks do Claude Code
 

@@ -43,6 +43,12 @@ if [ -z "${TOKEN}" ]; then
     TOKEN="$(tr -d '[:space:]' < "${TOKEN_FILE}")"
   fi
 fi
+if [ -z "${TOKEN}" ]; then
+  echo "ai-memory: credencial ausente. O token não foi encontrado em AI_MEMORY_TOKEN nem em ${AI_MEMORY_TOKEN_FILE:-${HOME}/.local/share/opencode/secrets/aimemory-token}." >&2
+  echo "ai-memory: peça o token ao usuário e salve no arquivo acima (chmod 600), ou rode o instalador:" >&2
+  echo "ai-memory:   bash <(curl -fsSL https://raw.githubusercontent.com/Nomadiction8991/MyMarketPlace/main/plugins/ai-memory/scripts/install.sh)" >&2
+  exit 0
+fi
 
 ARGS=(--event "${EVENT}" --agent "${AGENT}" --server-url "${SERVER}")
 if [ -n "${TOKEN}" ]; then
