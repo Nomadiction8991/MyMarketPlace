@@ -12,10 +12,32 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { homedir } from "node:os";
+import { fileURLToPath } from "node:url";
 
 const SERVER = (process.env.AI_MEMORY_SERVER_URL || "https://aimemory.anvy.com.br").replace(/\/+$/, "");
 const AGENT = "open-code";
 const TOKEN_FILE = process.env.AI_MEMORY_TOKEN_FILE || join(homedir(), ".local", "share", "opencode", "secrets", "aimemory-token");
+const PACKAGE_ROOT = dirname(fileURLToPath(import.meta.url));
+const SKILLS_PATH = join(PACKAGE_ROOT, "skills");
+
+type OpenCodeConfig = {
+  skills?: { paths?: string[] };
+  mcp?: Record<string, unknown>;
+};
+
+function configureOpenCode(config: OpenCodeConfig): void {
+  config.skills ??= {};
+  config.skills.paths ??= [];
+  if (!config.skills.paths.includes(SKILLS_PATH)) config.skills.paths.push(SKILLS_PATH);
+
+  config.mcp ??= {};
+  config.mcp["ai-memory"] ??= {
+    type: "remote",
+    url: `${SERVER}/mcp`,
+    enabled: true,
+    headers: { Authorization: `Bearer {file:${TOKEN_FILE}}` },
+  };
+}
 
 let cachedToken: string | null | undefined;
 function resolveToken(): string | null {
@@ -139,7 +161,7 @@ const CREDENTIAL_HINT =
   "⚠ ai-memory: credencial ausente (token não encontrado em AI_MEMORY_TOKEN nem em ~/.local/share/opencode/secrets/aimemory-token). " +
   "Solicite o token ao usuário e, com a permissão dele, salve-o (sem quebra de linha, chmod 600) no arquivo " +
   "~/.local/share/opencode/secrets/aimemory-token — ou rode o instalador: " +
-  "bash <(curl -fsSL https://raw.githubusercontent.com/Nomadiction8991/MyMarketPlace/main/plugins/ai-memory/scripts/install.sh).";
+  "npx --yes --package @nomadiction8991/ai-memory@0.4.0 ai-memory-setup.";
 
 function warnMissingCredential(input: unknown): void {
   const id = sessionID(input) ?? "unknown";
@@ -226,6 +248,10 @@ async function fetchHandoff(cwd: string): Promise<string | undefined> {
 export const AiMemoryHooks: Plugin = async ({ directory, client }) => {
   opencodeClient = client as typeof opencodeClient;
   return {
+    config: async (config) => {
+      configureOpenCode(config as OpenCodeConfig);
+    },
+
     event: async (input) => {
       const event = (input as any).event;
       const properties = event?.properties ?? {};

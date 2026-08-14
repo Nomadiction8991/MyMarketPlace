@@ -1,7 +1,7 @@
 {
   "name": "ai-memory",
   "description": "Cliente do servidor ai-memory: MCP remoto (via .mcp.json com headersHelper) + hooks de ciclo de vida (SessionStart, UserPromptSubmit, Pre/PostToolUse, Stop, SessionEnd) + 6 skills embutidas (retrieval, handoff, durable-pages, learning-maintenance, routing-install, login). Credencial lida de arquivo de secrets — nunca embutida no plugin.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": {
     "name": "Weverton"
   }

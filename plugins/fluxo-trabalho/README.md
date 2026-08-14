@@ -39,6 +39,19 @@ Skills ficam namespaced (`fluxo-trabalho:code-review` etc.); hooks
 
 ### OpenCode
 
+Instalação via npm, no escopo global:
+
+```bash
+opencode plugin --global @nomadiction8991/fluxo-trabalho
+```
+
+Também está disponível na tela **Install plugin** do OpenCode. Ao iniciar,
+o plugin registra automaticamente `skills/` e o MCP `context7` no config
+carregado. Reinicie o OpenCode depois da instalação.
+
+Para teste local ou instalação legada, ainda é possível usar o caminho no
+`opencode.json`:
+
 No `opencode.json` do projeto de destino:
 
 ```json

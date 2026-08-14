@@ -18,6 +18,7 @@ Este repositório é **somente a criação e estrutura do marketplace** — as I
     hooks/run.sh                   # rotina (Stop) — passo 1: code-review
     hooks/code-review.sh           # passo de code-review (reutilizável)
     index.ts                       # plugin OpenCode (chat.message + session.idle)
+    package.json                   # pacote npm @nomadiction8991/fluxo-trabalho
     skills/                        # 7 skills embutidas no plugin
   plugins/ai-memory/                # plugin cliente do servidor ai-memory
     .claude-plugin/plugin.json     # manifest do plugin
@@ -25,8 +26,9 @@ Este repositório é **somente a criação e estrutura do marketplace** — as I
     hooks/hooks.json               # gatilhos nativos (SessionStart..SessionEnd)
     hooks/emit.sh                  # emite evento (resolução binário+token em runtime)
     index.ts                       # plugin OpenCode (porta do ai-memory.ts gerado)
+    package.json                   # pacote npm @nomadiction8991/ai-memory
     skills/                        # 6 skills embutidas no plugin (vendidas no pacote)
-    scripts/install.sh             # clone + binário + credencial + MCP + plugin/skills nos 2 runtimes
+    scripts/install.sh             # instalador legado; o pacote npm usa setup.mjs
 ```
 
 ## Regra de ouro
@@ -35,8 +37,8 @@ O pacote deste marketplace **deve funcionar para o Claude E para o OpenCode quan
 
 | Item | OpenCode (instalação) | Claude Code (instalação) |
 |------|----------|-------------|
-| Plugin inteiro | `opencode.json` → `plugin` → `<repo>/plugins/fluxo-trabalho/index.ts` | `/plugin install fluxo-trabalho@my-marketplace` (escopo user/project/local) |
-| Skills (vendidas em `skills/`) | `opencode.json` → `skills.paths` → `<repo>/plugins/fluxo-trabalho/skills` | embutidas no plugin (auto-discovery, namespace `fluxo-trabalho:`) |
+| Plugin inteiro | `opencode plugin --global @nomadiction8991/fluxo-trabalho` | `/plugin install fluxo-trabalho@my-marketplace` (escopo user/project/local) |
+| Skills (vendidas em `skills/`) | hook `config` do pacote npm registra `skills.paths` automaticamente | embutidas no plugin (auto-discovery, namespace `fluxo-trabalho:`) |
 | Hooks | `index.ts`: `chat.message` (lembrete) + `session.idle` (rotina) | `hooks/hooks.json` com `${CLAUDE_PLUGIN_ROOT}` (UserPromptSubmit + Stop) |
 
 ## Como funciona o fluxo
@@ -48,6 +50,7 @@ O pacote deste marketplace **deve funcionar para o Claude E para o OpenCode quan
 ## Regras
 
 - NUNCA adicionar `opencode.json`, `.claude/` ou `.OpenCode/` neste repositório — este repo não roda IAs. Exceção: `.claude-plugin/` na raiz é o manifest do marketplace (não é config ativa) — manter sempre.
+- Pacotes npm ficam dentro de cada plugin e usam o scope público `@nomadiction8991`; o pacote npm é o adaptador do OpenCode, não substitui o marketplace nativo do Claude Code.
 - Hooks nativos do Claude Code ficam em `plugins/fluxo-trabalho/hooks/hooks.json`, usando `${CLAUDE_PLUGIN_ROOT}` em todo caminho (nunca paths absolutos nem relativos ao cwd). Lembrete: o Claude COPIA o plugin para cache na instalação — nada de referências fora do diretório do plugin.
 - Skills ficam em `plugins/fluxo-trabalho/skills/<nome>/`. Ao criar/atualizar skill: edite a pasta no plugin, revise o SKILL.md e suba a versão do plugin.
 - `index.json` é o catálogo — mantê-lo em dia (id, type, name, version, description, path, entry, tags).

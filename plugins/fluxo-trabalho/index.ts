@@ -7,8 +7,30 @@ import { writeFile } from "node:fs/promises"
 
 const PLUGIN_ROOT = dirname(fileURLToPath(import.meta.url))
 const RUN_SCRIPT = join(PLUGIN_ROOT, "hooks", "run.sh")
+const SKILLS_PATH = join(PLUGIN_ROOT, "skills")
 const INTERVIEW_REMINDER =
   "Antes de iniciar qualquer ação (pesquisa, edição ou implementação), execute a skill entreviste-me para validar o entendimento do pedido."
+
+type OpenCodeConfig = {
+  skills?: { paths?: string[] }
+  mcp?: Record<string, unknown>
+}
+
+function addSkillPath(config: OpenCodeConfig): void {
+  config.skills ??= {}
+  config.skills.paths ??= []
+  if (!config.skills.paths.includes(SKILLS_PATH)) config.skills.paths.push(SKILLS_PATH)
+}
+
+function addContext7(config: OpenCodeConfig): void {
+  config.mcp ??= {}
+  config.mcp.context7 ??= {
+    type: "remote",
+    url: "https://mcp.context7.com/mcp",
+    headers: { CONTEXT7_API_KEY: "{env:CONTEXT7_API_KEY}" },
+    enabled: true,
+  }
+}
 
 const editFlagPath = (worktree: string): string => {
   const key = createHash("md5").update(worktree).digest("hex").slice(0, 8)
@@ -17,6 +39,12 @@ const editFlagPath = (worktree: string): string => {
 
 export const WorkflowHook: Plugin = async ({ $, worktree }) => {
   return {
+    config: async (config) => {
+      const mutable = config as OpenCodeConfig
+      addSkillPath(mutable)
+      addContext7(mutable)
+    },
+
     "chat.message": async (_input, output) => {
       if (process.env.OPENCODE_SKIP_WORKFLOW === "1") return
 

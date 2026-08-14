@@ -1,0 +1,33 @@
+{
+  "name": "@nomadiction8991/ai-memory",
+  "version": "0.4.0",
+  "description": "Plugin OpenCode do cliente ai-memory, com skills, MCP remoto e instalador explícito para binário e credencial.",
+  "type": "module",
+  "main": "./index.ts",
+  "exports": "./index.ts",
+  "bin": {
+    "ai-memory-setup": "./scripts/setup.mjs"
+  },
+  "files": [
+    "index.ts",
+    "hooks",
+    "skills",
+    "scripts",
+    ".claude-plugin",
+    ".mcp.json"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.18.18",
+    "@opencode-ai/sdk": "^1.18.18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

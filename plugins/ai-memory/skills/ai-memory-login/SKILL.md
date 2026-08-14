@@ -43,7 +43,7 @@ Se o usuário preferir automatizar tudo (binário + token + MCP + plugin +
 skills), ofereça o instalador:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Nomadiction8991/MyMarketPlace/main/plugins/ai-memory/scripts/install.sh)
+   npx --yes --package @nomadiction8991/ai-memory@0.4.0 ai-memory-setup
 ```
 
 ## Onde o token é lido (ordem)

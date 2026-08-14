@@ -2,7 +2,7 @@
 name: entreviste-me
 model: sonnet
 effort: medium
-description: Ative automaticamente em quase todo turno de trabalho: qualquer mudança, decisão, plano, implementação, correção, ajuste ou pedido cujo entendimento não esteja 100% claro. Entreviste o usuário para validar o entendimento, questionar suposições e expor riscos antes de agir. Se estiver em dúvida se deve ativar, ative. Não ative apenas para perguntas puramente factuais, saudações ou tarefas triviais sem decisão envolvida.
+description: "Ative automaticamente em quase todo turno de trabalho: qualquer mudança, decisão, plano, implementação, correção, ajuste ou pedido cujo entendimento não esteja 100% claro. Entreviste o usuário para validar o entendimento, questionar suposições e expor riscos antes de agir. Se estiver em dúvida se deve ativar, ative. Não ative apenas para perguntas puramente factuais, saudações ou tarefas triviais sem decisão envolvida."
 ---
 
 Entreviste-me implacavelmente sobre cada aspecto disso até chegarmos a um entendimento compartilhado. Modele o problema como uma **árvore de decisão**: cada decisão gera os ramos e dependências que dela decorrem.

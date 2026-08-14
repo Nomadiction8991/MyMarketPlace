@@ -1,5 +1,5 @@
 ---
-name: gitlab
+name: mr-gitlab
 description: "Consulta, comenta, aprova, cria ou atualiza Merge Requests (MRs) no GitLab. Use via /gitlab ou SEMPRE que a palavra 'mr' (isolada ou dentro da frase) aparecer se referindo a Merge Request do GitLab, mesmo sem sintaxe exata — ex: 'abre uma mr pra isso', 'o que tem na mr 123', 'comenta na mr que...', 'aprova a mr 45', 'lista as mrs abertas', 'muda o título da mr 12'. Também aciona por 'merge request' ou 'pull request do gitlab' por extenso. Se o MCP do GitLab ainda não estiver instalado/conectado nesta sessão, a skill se autoinstala antes de qualquer operação."
 model: haiku
 argument-hint: "listar [filtro] | ver <id> | comentar <id> <mensagem> | aprovar <id> | aprovar <id> | criar <descrição> | atualizar <id> <o que mudar> | merge <id>"

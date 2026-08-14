@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Instala o cliente ai-memory no escopo do USUÁRIO (global):
-#   1. Garante o clone do marketplace (plugin + skills + hooks)
+#   1. Garante o clone do marketplace (plugin + skills + hooks), quando usado
+#      como instalador legado fora do pacote npm
 #   2. Baixa o binário `ai-memory` do release oficial (com verificação sha256)
 #   3. Garante a credencial (Bearer token) em um arquivo de secrets
 #   4. Registra o MCP remoto no Claude Code (`claude mcp add --scope user`)
@@ -17,9 +18,15 @@
 #   AI_MEMORY_TOKEN=xxx bash plugins/ai-memory/scripts/install.sh   # sem prompt
 set -euo pipefail
 
+NPM_MODE="${AI_MEMORY_NPM_MODE:-0}"
 MARKETPLACE_URL="https://github.com/Nomadiction8991/MyMarketPlace.git"
 MARKETPLACE_DIR="${MARKETPLACE_DIR:-${HOME}/marketplaces/MyMarketPlace}"
-PLUGIN_DIR="${MARKETPLACE_DIR}/plugins/ai-memory"
+PACKAGE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [ "${NPM_MODE}" = "1" ]; then
+  PLUGIN_DIR="${PACKAGE_DIR}"
+else
+  PLUGIN_DIR="${MARKETPLACE_DIR}/plugins/ai-memory"
+fi
 
 VERSION="1.26.0"
 BIN_REPO="akitaonrails/ai-memory"
@@ -30,7 +37,9 @@ TOKEN_FILE="${AI_MEMORY_TOKEN_FILE:-${SECRETS_DIR}/aimemory-token}"
 OPENCODE_CONFIG="${HOME}/.config/opencode/opencode.json"
 
 # ---------- 1. Marketplace (plugin + skills + hooks) ----------
-if [ -d "${MARKETPLACE_DIR}/.git" ]; then
+if [ "${NPM_MODE}" = "1" ]; then
+  echo "Usando o pacote npm em ${PACKAGE_DIR}"
+elif [ -d "${MARKETPLACE_DIR}/.git" ]; then
   echo "Marketplace já existe em ${MARKETPLACE_DIR}"
   echo "Dica: rode 'git -C ${MARKETPLACE_DIR} pull' para atualizar."
 else
@@ -69,7 +78,14 @@ else
   trap 'rm -rf "${TMP_DIR}"' EXIT
   curl -fsSL -o "${TMP_DIR}/${ASSET}" "${URL}"
   curl -fsSL -o "${TMP_DIR}/${ASSET}.sha256" "${URL}.sha256"
-  (cd "${TMP_DIR}" && sha256sum -c "${ASSET}.sha256")
+  if command -v sha256sum >/dev/null 2>&1; then
+    (cd "${TMP_DIR}" && sha256sum -c "${ASSET}.sha256")
+  elif command -v shasum >/dev/null 2>&1; then
+    (cd "${TMP_DIR}" && shasum -a 256 -c "${ASSET}.sha256")
+  else
+    echo "ERRO: sha256sum ou shasum não encontrado" >&2
+    exit 1
+  fi
   tar -xzf "${TMP_DIR}/${ASSET}" -C "${TMP_DIR}"
   BIN_SRC="$(find "${TMP_DIR}" -maxdepth 2 -type f -name ai-memory | head -1)"
   if [ -z "${BIN_SRC}" ]; then
@@ -99,19 +115,11 @@ fi
 
 # ---------- 4. Claude Code (MCP + plugin) ----------
 if command -v claude >/dev/null 2>&1; then
-  if [ -n "${TOKEN}" ]; then
-    if claude mcp get ai-memory >/dev/null 2>&1; then
-      claude mcp remove ai-memory >/dev/null 2>&1 || true
-    fi
-    claude mcp add --transport http ai-memory "${SERVER_URL}/mcp" \
-      --header "Authorization: Bearer ${TOKEN}" --scope user
-    echo "MCP ai-memory registrado no Claude Code (escopo user)"
-  else
-    echo "Aviso: sem token, MCP do Claude Code não registrado."
-  fi
+  echo "MCP do Claude Code será carregado pelo .mcp.json do plugin, usando o arquivo de secrets."
   if claude plugin list 2>/dev/null | grep -q "ai-memory@my-marketplace"; then
     echo "Plugin ai-memory já instalado no Claude Code (skills embutidas)."
   else
+    claude plugin marketplace add "${MARKETPLACE_URL}" >/dev/null 2>&1 || true
     claude plugin marketplace update my-marketplace >/dev/null 2>&1 || true
     claude plugin install ai-memory@my-marketplace --scope user || \
       echo "Aviso: instale manualmente com /plugin install ai-memory@my-marketplace"
@@ -123,7 +131,9 @@ fi
 
 # ---------- 5. OpenCode (plugin + skills.paths + MCP) ----------
 mkdir -p "$(dirname "${OPENCODE_CONFIG}")"
-if [ ! -f "${OPENCODE_CONFIG}" ]; then
+if [ "${NPM_MODE}" = "1" ]; then
+  echo "OpenCode: plugin e skills são registrados pelo hook de configuração do pacote npm."
+elif [ ! -f "${OPENCODE_CONFIG}" ]; then
   cat > "${OPENCODE_CONFIG}" <<EOF
 {
   "\$schema": "https://opencode.ai/config.json",
@@ -158,7 +168,11 @@ fi
 echo
 echo "Pronto! ai-memory configurado no escopo do USUÁRIO:"
 echo "- Servidor:    ${SERVER_URL}"
-echo "- Plugin+skills: ${PLUGIN_DIR} (OpenCode) / ai-memory@my-marketplace (Claude)"
+if [ "${NPM_MODE}" = "1" ]; then
+  echo "- Plugin+skills: pacote npm @nomadiction8991/ai-memory (OpenCode) / ai-memory@my-marketplace (Claude)"
+else
+  echo "- Plugin+skills: ${PLUGIN_DIR} (OpenCode) / ai-memory@my-marketplace (Claude)"
+fi
 echo "- Binário:     ${BIN_DIR}/ai-memory"
 echo "- Credencial:  ${TOKEN_FILE}"
 echo

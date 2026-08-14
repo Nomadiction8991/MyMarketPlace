@@ -1,0 +1,30 @@
+{
+  "name": "@nomadiction8991/fluxo-trabalho",
+  "version": "0.4.0",
+  "description": "Plugin de workflow para OpenCode com skills, lembrete de entrevista e code-review automático.",
+  "type": "module",
+  "main": "./index.ts",
+  "exports": "./index.ts",
+  "files": [
+    "index.ts",
+    "hooks",
+    "skills",
+    ".claude-plugin",
+    ".mcp.json",
+    "README.md"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.18.18",
+    "@opencode-ai/sdk": "^1.18.18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

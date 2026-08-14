@@ -3,7 +3,7 @@
     "ai-memory": {
       "type": "http",
       "url": "https://aimemory.anvy.com.br/mcp",
-      "headersHelper": "T=$(tr -d '[:space:]' < ~/.local/share/opencode/secrets/aimemory-token 2>/dev/null || true); [ -n \"$T\" ] && printf '{\"Authorization\":\"Bearer %s\"}' \"$T\""
+      "headersHelper": "TOKEN_FILE=\"${AI_MEMORY_TOKEN_FILE:-${HOME}/.local/share/opencode/secrets/aimemory-token}\"; T=$(tr -d '[:space:]' < \"$TOKEN_FILE\" 2>/dev/null || true); [ -n \"$T\" ] || exit 0; T_JSON=$(printf '%s' \"$T\" | sed 's/\\\\/\\\\\\\\/g; s/\"/\\\\\"/g'); printf '{\"Authorization\":\"Bearer %s\"}' \"$T_JSON\""
     }
   }
 }

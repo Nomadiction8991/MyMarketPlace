@@ -87,7 +87,43 @@ Versão nova é sinalizada pelo `version` no `plugin.json` do pacote.
 
 ## OpenCode
 
-### Método automático (recomendado)
+### Método npm (recomendado)
+
+Os pacotes npm precisam estar publicados antes desta etapa. A implementação
+local já está preparada na versão `0.4.0`.
+
+Na tela **Install plugin**, escolha o escopo `global` e informe os pacotes:
+
+```text
+@nomadiction8991/fluxo-trabalho
+@nomadiction8991/ai-memory
+```
+
+Ou execute:
+
+```bash
+opencode plugin --global @nomadiction8991/fluxo-trabalho@0.4.0
+opencode plugin --global @nomadiction8991/ai-memory@0.4.0
+```
+
+O OpenCode instala os módulos npm e atualiza o `~/.config/opencode/opencode.json`.
+Ao carregar, cada plugin registra automaticamente sua pasta de skills; o
+`ai-memory` registra também o MCP remoto usando o arquivo de token, sem
+embutir a credencial no pacote.
+
+Depois configure o binário e o token do ai-memory com o instalador explícito:
+
+```bash
+npx --yes --package @nomadiction8991/ai-memory@0.4.0 ai-memory-setup
+```
+
+Esse comando pode solicitar o Bearer token e mantém a configuração do
+Claude Code compatível. O `postinstall` do pacote não baixa binários, não
+altera credenciais e não modifica configurações globais.
+
+Reinicie Claude Code / OpenCode depois da instalação.
+
+### Método legado automático
 
 Com o repo já clonado (ou baixe direto), rode o instalador:
 
@@ -105,7 +141,7 @@ O script:
 
 Depois reinicie o OpenCode.
 
-### Método manual
+### Método legado/manual
 
 ### 1. Clonar o marketplace
 
@@ -202,7 +238,7 @@ O plugin traz o `.mcp.json` (servidor MCP remoto com `headersHelper` que
 lê o token do secrets file em runtime) + hooks + 6 skills embutidas. Com
 o token salvo no secrets file, o MCP conecta sozinho.
 
-**OpenCode**: adicione ao config global (`~/.config/opencode/opencode.json`):
+**OpenCode legado**: adicione ao config global (`~/.config/opencode/opencode.json`):
 
 ```json
 "plugin": [
@@ -210,7 +246,7 @@ o token salvo no secrets file, o MCP conecta sozinho.
 ]
 ```
 
-### 2. Instalar binário + credencial (uma vez por máquina)
+### 2. Instalar binário + credencial (uma vez por máquina, método legado)
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/Nomadiction8991/MyMarketPlace/main/plugins/ai-memory/scripts/install.sh)
@@ -249,7 +285,10 @@ plugin**, em `plugins/ai-memory/skills/`:
 
 - **Claude Code**: vêm junto com o plugin (auto-discovery, namespace
   `ai-memory:`) — instalar o plugin já traz as skills.
-- **OpenCode**: o `skills.paths` do install.sh aponta para a pasta vendida.
+- **OpenCode npm**: o hook `config` do pacote registra a pasta vendida no
+  config carregado, sem exigir edição manual.
+- **OpenCode legado**: o `skills.paths` do `install.sh` aponta para a pasta
+  vendida.
 
 Não é preciso rodar `install-skills` — tudo vem no pacote.
 
