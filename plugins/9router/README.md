@@ -20,6 +20,14 @@ Funciona nos dois runtimes:
 - **Continuidade**: o novo terminal (ativação e restauração) abre com `claude --resume <id da sessão atual>` — a conversa continua de onde parou, sem perder contexto.
 - **Comando manual**: `/9router status|on|off|aplicar|remover|token`.
 
+## Comando manual
+
+`/9router status|on|off|aplicar|remover|token`.
+
+## Statusline (Claude Code)
+
+O hook `SessionStart` registra a statusline do rodapé apontando para `scripts/statusline.sh`, que **compõe** com a statusline anterior do usuário: preserva a primeira linha e adiciona o estado do 9router (`[9router: ativo até HH:MM]` / `[9router: off]` / `[9router: normal]`). Como o Claude copia o plugin para cache, o caminho real é descoberto e regravado a cada sessão (idempotente).
+
 ## Token
 
 Resolução em runtime (nada hardcoded): env `NINEROUTER_KEY` → env `CLAUDE_LIMIT_PROXY_AUTH_TOKEN` → arquivo de secrets com permissão 600.
