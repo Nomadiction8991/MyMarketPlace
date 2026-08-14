@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from limit_proxy_common import MANAGED_ENV, MANAGED_KEYS, NINEROUTER_KEY_ENV, TOKEN_ENV, get_token, ninerouter_base, open_terminal
+from limit_proxy_common import MANAGED_ENV, MANAGED_KEYS, NINEROUTER_KEY_ENV, TOKEN_ENV, get_token, ninerouter_base, open_terminal, session_id_from_transcript
 
 
 CLAUDE_DIR = Path.home() / ".claude"
@@ -119,7 +119,7 @@ def restore_proxy() -> bool:
     state["manual_control_restored"] = True
     write_json(SETTINGS_PATH, settings)
     if changed:
-        terminal_pid = open_terminal(configured_cwd(), normal_provider=True, pid_file=str(STATE_DIR / "normal-shell.pid"))
+        terminal_pid = open_terminal(configured_cwd(), normal_provider=True, pid_file=str(STATE_DIR / "normal-shell.pid"), session_id=session_id_from_transcript(state.get("last_transcript_path") if isinstance(state.get("last_transcript_path"), str) else None))
         opened = terminal_pid is not None
         state["terminal_opened_on_restore"] = opened
         if terminal_pid is not None:
@@ -266,6 +266,9 @@ def apply_proxy_now() -> bool:
             state["last_transcript_path"] = last_transcript_path
         if isinstance(last_transcript_offset, int):
             state["last_transcript_offset"] = last_transcript_offset
+        session_id = session_id_from_transcript(state.get("last_transcript_path") if isinstance(state.get("last_transcript_path"), str) else None)
+        if session_id:
+            state["session_id"] = session_id
     else:
         if state.get("restore_at"):
             try:
@@ -287,7 +290,7 @@ def apply_proxy_now() -> bool:
     opened = False
     if not state.get("terminal_opened_on_activation"):
         external_pid_file = str(STATE_DIR / "external-shell.pid")
-        terminal_pid = open_terminal(cwd, pid_file=external_pid_file)
+        terminal_pid = open_terminal(cwd, pid_file=external_pid_file, session_id=state.get("session_id"))
         opened = terminal_pid is not None
         state["terminal_opened_on_activation"] = opened
         if terminal_pid is not None:

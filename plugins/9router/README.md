@@ -17,6 +17,7 @@ Funciona nos dois runtimes:
 - **Detecção**: mensagens de limite no transcript (Claude) / nas mensagens do chat (OpenCode).
 - **Aplicação**: define `ANTHROPIC_*` apontando para o 9router (Claude: `settings.json` global com backup; OpenCode: provider `anthropic.options` no `opencode.json` global com backup).
 - **Restauração**: no horário de reset detectado + 15 min de graça (Claude), ou 5h de segurança (manual).
+- **Continuidade**: o novo terminal (ativação e restauração) abre com `claude --resume <id da sessão atual>` — a conversa continua de onde parou, sem perder contexto.
 - **Comando manual**: `/9router status|on|off|aplicar|remover|token`.
 
 ## Token

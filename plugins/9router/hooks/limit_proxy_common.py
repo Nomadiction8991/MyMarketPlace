@@ -63,12 +63,25 @@ def get_token() -> str | None:
     return None
 
 
-def open_terminal(cwd: str | None, normal_provider: bool = False, pid_file: str | None = None) -> int | None:
+def session_id_from_transcript(transcript_path: str | None) -> str | None:
+    if not transcript_path:
+        return None
+    name = Path(transcript_path).name
+    if name.endswith(".jsonl"):
+        name = name[: -len(".jsonl")]
+    return name or None
+
+
+def open_terminal(cwd: str | None, normal_provider: bool = False, pid_file: str | None = None, session_id: str | None = None) -> int | None:
     if os.environ.get("CLAUDE_LIMIT_PROXY_OPEN_TERMINAL", "1") not in {"1", "true", "yes"}:
         return None
     workdir = cwd if cwd and Path(cwd).is_dir() else str(Path.cwd())
     pid_prefix = f"printf '%s' $$ > {shlex.quote(pid_file)}; " if pid_file else ""
-    claude_command = f"{pid_prefix}trap 'kill -TERM 0 2>/dev/null || true' TERM; CLAUDE_CODE_FORCE_SESSION_PERSISTENCE=1 claude; exec bash"
+    resume = f" --resume {shlex.quote(session_id)}" if session_id else ""
+    claude_command = (
+        f"{pid_prefix}trap 'kill -TERM 0 2>/dev/null || true' TERM; "
+        f"CLAUDE_CODE_FORCE_SESSION_PERSISTENCE=1 claude{resume}; exec bash"
+    )
     process_env = os.environ.copy()
     if normal_provider:
         process_env = {key: value for key, value in process_env.items() if not key.startswith("ANTHROPIC_")}

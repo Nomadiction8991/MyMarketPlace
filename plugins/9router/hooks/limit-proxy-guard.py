@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from limit_proxy_common import MANAGED_ENV, MANAGED_KEYS, NINEROUTER_KEY_ENV, TOKEN_ENV, get_token, ninerouter_base, open_terminal
+from limit_proxy_common import MANAGED_ENV, MANAGED_KEYS, NINEROUTER_KEY_ENV, TOKEN_ENV, get_token, ninerouter_base, open_terminal, session_id_from_transcript
 
 
 HOME = Path.home()
@@ -421,6 +421,9 @@ def apply_proxy(input_data: dict[str, Any], text: str, state: dict[str, Any], tr
     if transcript_path and transcript_offset is not None:
         state["last_transcript_path"] = transcript_path
         state["last_transcript_offset"] = transcript_offset
+    session_id = session_id_from_transcript(transcript_path) or state.get("session_id")
+    if session_id:
+        state["session_id"] = session_id
 
     env.update(MANAGED_ENV)
     # Claude Code lê as credenciais do provider no settings.json ao iniciar;
@@ -436,7 +439,7 @@ def apply_proxy(input_data: dict[str, Any], text: str, state: dict[str, Any], tr
     opened = False
     if not state.get("terminal_opened_on_activation"):
         external_pid_file = str(STATE_DIR / "external-shell.pid")
-        terminal_pid = open_terminal(cwd, pid_file=external_pid_file)
+        terminal_pid = open_terminal(cwd, pid_file=external_pid_file, session_id=state.get("session_id"))
         opened = terminal_pid is not None
         state["terminal_opened_on_activation"] = opened
         if terminal_pid is not None:
@@ -486,7 +489,8 @@ def restore_proxy(input_data: dict[str, Any], state: dict[str, Any]) -> None:
     closed = False
     if not state.get("terminal_opened_on_restore"):
         state_cwd = state.get("cwd") if isinstance(state.get("cwd"), str) else None
-        terminal_pid = open_terminal(hook_string(input_data, "cwd") or state_cwd, normal_provider=True, pid_file=str(STATE_DIR / "normal-shell.pid"))
+        session_id = session_id_from_transcript(hook_string(input_data, "transcript_path")) or state.get("session_id")
+        terminal_pid = open_terminal(hook_string(input_data, "cwd") or state_cwd, normal_provider=True, pid_file=str(STATE_DIR / "normal-shell.pid"), session_id=session_id)
         opened = terminal_pid is not None
         state["terminal_opened_on_restore"] = opened
         if terminal_pid is not None:
