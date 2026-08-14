@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from limit_proxy_common import MANAGED_ENV, MANAGED_KEYS, NINEROUTER_KEY_ENV, TOKEN_ENV, get_token, ninerouter_base, open_terminal, session_id_from_transcript
+from limit_proxy_common import MANAGED_ENV, MANAGED_KEYS, NINEROUTER_KEY_ENV, TOKEN_ENV, get_token, ninerouter_base, open_terminal, save_token, session_id_from_transcript
 
 
 HOME = Path.home()
@@ -88,6 +88,10 @@ def maybe_handle_control_command(input_data: dict[str, Any]) -> bool:
         return False
     mark_transcript_seen(input_data)
     args = prompt[len(CONTROL_COMMAND):].strip().split()
+    if args and args[0] == "token" and len(args) > 1:
+        save_token(args[1])
+        emit("9router: chave salva em ~/.claude/limit-proxy-token (600). A troca de provider será aplicada no próximo passo.", suppress=True)
+        return True
     env = os.environ.copy()
     cwd = hook_string(input_data, "cwd")
     if cwd:
@@ -378,7 +382,11 @@ def backup_settings() -> Path:
 def apply_proxy(input_data: dict[str, Any], text: str, state: dict[str, Any], transcript_path: str | None = None, transcript_offset: int | None = None) -> None:
     token = get_token()
     if not token:
-        emit(f"9router: limite de uso detectado, mas nenhum token do 9router foi encontrado. Defina {NINEROUTER_KEY_ENV} ou {TOKEN_ENV}, ou crie ~/.claude/limit-proxy-token (600).")
+        emit(
+            "9router: detectei que você bateu o limite de uso, mas não encontrei a chave do 9router. "
+            "Cole sua chave respondendo: token <sk-...>  (ou use /9router token <chave>). "
+            "Ela será salva em ~/.claude/limit-proxy-token (permissão 600) e a troca de provider aplicada em seguida."
+        )
         return
 
     settings = load_settings()
@@ -557,6 +565,13 @@ def main() -> None:
         input_data = {}
 
     if maybe_handle_control_command(input_data):
+        return
+
+    prompt = user_prompt(input_data).strip()
+    if prompt.startswith("token ") and prompt[6:].startswith("sk-"):
+        mark_transcript_seen(input_data)
+        save_token(prompt[6:])
+        emit("9router: chave salva em ~/.claude/limit-proxy-token (600). A troca de provider será aplicada no próximo passo.", suppress=True)
         return
 
     with FileLock():

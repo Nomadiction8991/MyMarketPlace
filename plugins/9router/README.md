@@ -37,6 +37,8 @@ Resolução em runtime (nada hardcoded): env `NINEROUTER_KEY` → env `CLAUDE_LI
 
 Salve com `/9router token` (define a env antes) ou crie o arquivo manualmente.
 
+Se o hook detectar o limite **sem** a chave, ele pede a chave ao usuário no chat — responda `token <sk-...>` (Claude salva em `~/.claude/limit-proxy-token`; OpenCode em `~/.local/share/opencode/secrets/9router-token`; ambos 600) e a troca de provider é aplicada em seguida. Nada de chave é commitado: use `token <sk-...>` ou `/9router token <chave>` no chat, nunca a chave em arquivos do repo.
+
 ## Endpoint
 
 Configurável via env `NINEROUTER_URL` (default `https://9router.anvy.com.br`). O plugin usa `<NINEROUTER_URL>/v1` como `ANTHROPIC_BASE_URL`; as skills usam `<NINEROUTER_URL>/v1/...` diretamente.

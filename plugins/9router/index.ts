@@ -1,6 +1,6 @@
 import type { Plugin } from "@opencode-ai/plugin"
 import type { Part } from "@opencode-ai/sdk"
-import { readFile } from "node:fs/promises"
+import { readFile, writeFile, chmod } from "node:fs/promises"
 import { homedir } from "node:os"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -76,6 +76,18 @@ export const NineRouterProvider: Plugin = async ({ $, worktree }) => {
 
     "chat.message": async (_input, output) => {
       const trimmed = userText(output.parts).trim()
+      const keyMatch = /^token\s+(sk-\S+)\s*$/.exec(trimmed)
+      if (keyMatch) {
+        const path = secretsTokenPath()
+        await writeFile(path, keyMatch[1] + "\n", { mode: 0o600 })
+        await chmod(path, 0o600).catch(() => {})
+        process.env.NINEROUTER_KEY = keyMatch[1]
+        output.parts.push({
+          type: "text",
+          text: "[9router] Chave salva em ~/.local/share/opencode/secrets/9router-token (600). A troca de provider será aplicada ao detectar o próximo limite.",
+        } as Part)
+        return
+      }
       if (trimmed === "/9router" || trimmed.startsWith("/9router ")) {
         const args = trimmed.slice("/9router".length).trim().split(/\s+/)
         const action = args[0]?.toLowerCase() ?? "status"
@@ -93,6 +105,14 @@ export const NineRouterProvider: Plugin = async ({ $, worktree }) => {
       }
 
       if (!LIMIT_PATTERNS.some((pattern) => pattern.test(trimmed))) return
+
+      if (!process.env.NINEROUTER_KEY) {
+        output.parts.push({
+          type: "text",
+          text: "[9router] Limite de uso detectado, mas não encontrei a chave do 9router. Cole sua chave respondendo: token <sk-...> — ela será salva em ~/.local/share/opencode/secrets/9router-token (600) e a troca de provider aplicada em seguida.",
+        } as Part)
+        return
+      }
 
       const result = await $`python3 ${CONTROL_SCRIPT} aplicar`.cwd(worktree).nothrow()
       const text = shellText(result)
