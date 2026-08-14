@@ -1,27 +1,40 @@
 {
   "name": "local-opencode-marketplace",
-  "version": "0.4.0",
+  "version": "0.6.0",
   "description": "Marketplace de plugins para OpenCode e Claude Code (formato nativo de marketplace do Claude Code: .claude-plugin/marketplace.json).",
   "packages": [
     {
       "id": "fluxo-trabalho",
       "type": "plugin",
       "name": "fluxo-trabalho",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "description": "Fluxo de trabalho único para OpenCode e Claude Code: lembrete entreviste-me no início (UserPromptSubmit / chat.message) + rotina com code-review ao final de cada resposta (Stop / session.idle). Embutidas: 7 skills (entreviste-me, code-review, commit, chamado-tomticket, frontend-design, linguagem, mr-gitlab).",
       "path": "plugins/fluxo-trabalho",
       "entry": "index.ts",
-      "tags": ["plugin", "hook", "workflow", "rotina", "code-review", "skills"]
+      "npm": "@nomadiction8991/fluxo-trabalho",
+      "tags": ["plugin", "hook", "workflow", "rotina", "code-review", "skills", "npm"]
     },
     {
       "id": "ai-memory",
       "type": "plugin",
       "name": "ai-memory",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "description": "Cliente do servidor ai-memory: MCP remoto (via .mcp.json) + hooks de ciclo de vida (SessionStart, UserPromptSubmit, Pre/PostToolUse, Stop, SessionEnd) + 6 skills embutidas (retrieval, handoff, durable-pages, learning-maintenance, routing-install, login). Credencial lida de arquivo de secrets e solicitada em runtime quando ausente — só baixar, colocar o token e funciona.",
       "path": "plugins/ai-memory",
       "entry": "index.ts",
-      "tags": ["plugin", "mcp", "memoria", "hooks", "skills", "ai-memory"]
+      "npm": "@nomadiction8991/ai-memory",
+      "tags": ["plugin", "mcp", "memoria", "hooks", "skills", "ai-memory", "npm"]
+    },
+    {
+      "id": "9router",
+      "type": "plugin",
+      "name": "9router",
+      "version": "0.1.0",
+      "description": "Troca automática do provider para o 9router (https://9router.anvy.com.br) quando o uso bate o limite: detecta a mensagem de limite (UserPromptSubmit/Stop no Claude; chat.message no OpenCode), aplica o provider 9router e restaura o original após o reset. Comando /9router (status|on|off|aplicar|remover|token). 9 skills oficiais do 9router embutidas (chat, image, video, tts, stt, embeddings, web-search, web-fetch).",
+      "path": "plugins/9router",
+      "entry": "index.ts",
+      "npm": "@nomadiction8991/9router",
+      "tags": ["plugin", "hook", "9router", "provider", "fallback", "skills", "npm"]
     }
   ]
 }

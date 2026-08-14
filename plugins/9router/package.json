@@ -1,0 +1,31 @@
+{
+  "name": "@nomadiction8991/9router",
+  "version": "0.1.0",
+  "description": "Plugin 9router para OpenCode e Claude Code: troca automática do provider para o 9router quando bate o limite de uso + 9 skills oficiais do 9router (chat, image, video, tts, stt, embeddings, web-search, web-fetch).",
+  "type": "module",
+  "main": "./index.ts",
+  "exports": "./index.ts",
+  "files": [
+    "index.ts",
+    "hooks",
+    "scripts",
+    "skills",
+    "commands",
+    ".claude-plugin",
+    "README.md"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.18.18",
+    "@opencode-ai/sdk": "^1.18.18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

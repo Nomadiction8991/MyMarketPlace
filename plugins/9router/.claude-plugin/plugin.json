@@ -1,0 +1,8 @@
+{
+  "name": "9router",
+  "description": "Troca automática do provider para o 9router (https://9router.anvy.com.br) quando o uso do Claude/OpenCode bate o limite: detecta a mensagem de limite, aplica o provider 9router e restaura o original após o reset. Comando /9router (status|on|off|aplicar|remover|token). 9 skills oficiais do 9router embutidas em skills/.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Weverton"
+  }
+}
