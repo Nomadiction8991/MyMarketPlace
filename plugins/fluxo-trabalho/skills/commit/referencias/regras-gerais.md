@@ -4,6 +4,12 @@ Regras que valem para **todo** commit criado por esta skill, sem exceção. Ler 
 
 ---
 
+## 0. Nunca usar o contexto do chat para montar a mensagem
+
+A mensagem do commit é derivada **exclusivamente** do estado real do repositório: `git status`, `git diff` (cached e não-cached), `git log` e leitura dos arquivos alterados. Histórico da conversa, resumos do assistente ou a forma como o usuário descreveu a mudança **nunca** são fonte da mensagem — se o diff não confirma, não entra no commit. Se o usuário sugerir um subject, validar contra o diff antes de aceitar.
+
+---
+
 ## 1. O corpo da mensagem é sempre obrigatório
 
 Nenhum commit fica só com a linha `tipo(escopo): descrição` — mesmo em mudanças pequenas ou que pareçam óbvias. Sempre escrever pelo menos um parágrafo de corpo explicando o quê mudou e por quê.

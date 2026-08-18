@@ -8,6 +8,12 @@ model: haiku
 
 Cria commit bem formatado: $ARGUMENTS
 
+## Regra de ouro: contexto isolado
+
+A mensagem do commit é montada **somente** a partir do estado real do repositório — `git status`, `git diff`, `git log` e a leitura dos arquivos alterados. **Nunca** usar histórico da conversa, resumos do chat ou descrições do usuário como fonte da mensagem: se o diff não confirma, não entra no commit.
+
+> Preferência: quando o agente `commit-agent` estiver disponível (Claude: `fluxo-trabalho:commit-agent`; OpenCode: `commit-agent`), delegue a ele a montagem da mensagem — ele inicia com contexto limpo. A confirmação `[S]/[N]` continua sendo feita aqui, no agente principal.
+
 ## Estado Atual do Repositório
 
 - Status Git: !`git status --porcelain`

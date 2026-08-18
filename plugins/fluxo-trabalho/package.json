@@ -9,6 +9,7 @@
     "index.ts",
     "hooks",
     "skills",
+    "agents",
     ".claude-plugin",
     ".mcp.json",
     "README.md"
