@@ -53,6 +53,8 @@ Se a especificação estiver ausente, pule o sub-agente de Especificação e ano
 
 ## 5. Agregar
 
-Apresente os dois relatórios sob os títulos `## Padrões` e `## Especificação`, na íntegra ou levemente limpos. **Não** mescle ou re-ordene os achados — os dois eixos são deliberadamente separados.
+Apresente os dois relatórios sob os títulos `## Padrões` e `## Especificação`, seguindo obrigatoriamente o formato de `references/formato-saida.md`: cada achado em bloco numerado com Local, nível de severidade (Crítico 🔴 / Alto 🟠 / Médio 🟡 / Baixo ⚪), Linguagem simples, Linguagem técnica e Recomendação. **Não** mescle ou re-ordene os achados — os dois eixos são deliberadamente separados.
 
-Finalize com um resumo de uma linha: total de achados por eixo e o pior problema dentro de cada eixo, se houver. Não escolha um único vencedor entre os eixos.
+Se esta revisão corrigir afirmações imprecisas de relatórios anteriores (da própria skill ou do agente), acrescente a seção `## Correções que reportei mal antes` antes do resumo, com os mesmos blocos de achado.
+
+Finalize com um resumo de uma linha: total de achados por eixo e o pior nível dentro de cada eixo, se houver. Não escolha um único vencedor entre os eixos.

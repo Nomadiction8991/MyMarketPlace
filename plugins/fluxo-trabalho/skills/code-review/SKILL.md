@@ -21,5 +21,6 @@ Leia os arquivos conforme a necessidade:
 - `references/code-smells.md` — baseline fixa de smells usada pelo eixo de Padrões.
 - `references/roda-reinventada.md` — verificação de código manual substituível por recursos nativos do stack.
 - `references/dois-eixos.md` — razão para manter Padrões e Especificação separados.
+- `references/formato-saida.md` — formato obrigatório do relatório: blocos de achado com Local, nível (Crítico/Alto/Médio/Baixo), Linguagem simples, Linguagem técnica e Recomendação.
 - `references/hooks.md` — hooks desta skill: neste marketplace vêm do plugin `fluxo-trabalho` (Claude: `PostToolUse` Write|Edit → `mark-edit.sh`; `Stop` → `hooks/run.sh` → `hooks/code-review.sh`. opencode: `tool.execute.after` → flag; `session.idle` → `hooks/run.sh`). Não instale hooks globais.
 - `references/context7.md` — instalação/configuração obrigatória do MCP context7 global no Claude Code e no opencode.
